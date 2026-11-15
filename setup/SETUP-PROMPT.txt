@@ -1,0 +1,56 @@
+You are installing "ultra-edit" - a Claude skill that edits a talking-head video end to end
+in the user's own video editor (Premiere Pro or DaVinci Resolve). Follow these steps.
+
+STEP 0 - ASK THE EDITOR (required, do this first)
+Ask: "Do you edit in Premiere Pro or DaVinci Resolve?" Then follow only that route.
+
+STEP 1 - PREREQUISITES (check, install what is missing)
+- Node.js 18+ (for tooling), Python 3.10-3.12 recommended, ffmpeg on PATH.
+- If ffmpeg is missing: winget install Gyan.FFmpeg  (or the platform equivalent).
+
+STEP 2a - DaVinci Resolve ROUTE (fully self-contained)
+1. Run: npx -y davinci-resolve-mcp@latest setup --clients all
+   (installs the MCP server, its own Python venv, and registers it in your MCP clients)
+2. If Resolve is the FREE edition: also run the bridge installer from the managed folder:
+   <appdata>/davinci-resolve-mcp/scripts/install_resolve_bridge.py
+   using the venv python, then in Resolve: restart it, open a project, and run
+   Workspace > Scripts > resolve_bridge  (leave Resolve open while editing).
+3. Verify: in a NEW Claude session, say "check my DaVinci Resolve status".
+
+STEP 2b - Premiere Pro ROUTE (needs a Premiere MCP server)
+1. You need a Premiere Pro MCP server installed and its CEP panel loaded in Premiere.
+   If you were given an ultra-premiere-mcp folder by the skill author, run its
+   install-panel script and register the server (npm start) in your MCP client config.
+   Otherwise Premiere support is not available yet - use the DaVinci route.
+2. Verify: say "check my Premiere status" in a NEW Claude session.
+
+STEP 2c - AFTER EFFECTS ADD-ON (optional, works with either editor)
+1. In After Effects: Edit > Preferences > Scripting & Expressions (Mac: After Effects >
+   Settings) - tick "Allow Scripts to Write Files and Access Network", restart AE.
+2. Install the After Effects MCP: follow https://github.com/TheLlamainator/after-effects-mcp
+   (clone, npm install, npm run build), then register it:
+   claude mcp add AfterEffectsMCP node "<absolute path>/after-effects-mcp/build/index.js"
+3. In AE open the connector's bridge panel from the Window menu and turn on auto-run;
+   keep AE open with a project when using it.
+4. Verify: say "Get my After Effects project info".
+
+STEP 2d - REMOTION ADD-ON (optional, for templated motion graphics)
+1. Node.js 18+ is required. No global install needed - the assistant scaffolds a small
+   Remotion project in the job folder when a shot needs it (npx create-video@latest
+   or a minimal package.json + @remotion/renderer).
+2. Verify: npx remotion versions
+
+STEP 3 - SKILL INSTALL
+Place this skill folder (SKILL.md) into your Claude skills folder:
+- Claude Code:  ~/.claude/skills/ultra-edit/SKILL.md
+- Claude Desktop: use the skills importer, or paste SKILL.md content into a project instruction.
+
+STEP 4 - TEST EDIT (prove it works)
+Hand your assistant any short talking-head recording (10-60 s) and say: "ultra edit this video".
+The assistant should: transcribe it, propose hooks + beat plan, wait for your OK, build a
+layered timeline in YOUR editor with captions following the voice, then report where
+the export went. It never uploads or posts anything.
+
+NOT INCLUDED: music (bring a track you have rights to), other people's footage,
+and any personal editing styles - the skill uses neutral defaults unless you
+give it your own references.
