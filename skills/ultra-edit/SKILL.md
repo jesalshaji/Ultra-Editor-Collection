@@ -15,7 +15,7 @@ Connect and verify EVERY software the user names, one by one, using the table be
 
 | Software | Role it can take | Tools | Connection check |
 |---|---|---|---|
-| Premiere Pro | Main edit | ultra-premiere-mcp (or any Premiere MCP): `premiere_status`, `transcribe_media`, `setup_layers`, `add_voice`, `add_styled_captions`, `find_broll`/`use_broll`, `make_broll`, `apply_preset`, `export_video` | `premiere_status` |
+| Premiere Pro | Main edit | ultra-premiere-mcp (`connectors/ultra-premiere-mcp` in this repo, or any Premiere MCP): `premiere_status`, `transcribe_media`, `setup_layers`, `add_voice`, `add_styled_captions`, `find_broll`/`use_broll`, `make_broll`, `apply_preset`, `export_video` | `premiere_status` |
 | DaVinci Resolve | Main edit | davinci-resolve-mcp (resolve_status, import_media, add_clips, add_text, add_marker, render_export, subtitle/audio tools) | `resolve_status` - free edition needs the in-app bridge running: Workspace > Scripts > resolve_bridge, Resolve open with the project open |
 | After Effects | Motion graphics (or main target for pure-motion jobs) | AfterEffectsMCP: `create-composition`, `run-script`, `setLayerKeyframe`, `setLayerExpression`, `apply-effect`, `get-results` | "Get my After Effects project info" - needs AE open, scripting enabled (Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network) and the connector's bridge panel open with auto-run on |
 | Remotion | Templated motion (always available) | renders MP4/WebM with alpha via a small React project; import the render into whichever editor is in use | `npx remotion versions` in the job folder |
@@ -77,6 +77,14 @@ Build in named layers so the user can test and fix each part:
 ## Style (neutral - this skill ships with NO house style)
 
 Use clean defaults: white sans-serif word-by-word captions, simple slow-zoom accents, restrained graphics. Do NOT impose any personal theme. If the user shares their own reference videos, presets, or a style description, follow THOSE instead and apply them consistently.
+
+## Effects - only when asked
+
+Zooms that follow the action, editable spotlights, real logos and concept cards, article rebuilds, relatable stock b-roll, word-by-word captions, light-burst / bloom transitions, sound hits, face/screen mode switching: these live in `effects/EFFECTS.md` (recipes) with scripts in `effects/templates`, `effects/captions`, `effects/transitions`. Read that file and use a recipe **only when the user asks for that effect** (or shares a reference that uses it) - never add them by default.
+
+One rule applies whenever any of them is used: **real thing first.** If the voice talks about something the screen recording already shows, show that part of the recording (zoom or spotlight it) instead of covering it with words or a generated graphic; when it is not on screen, use the real logo or real footage, never a generic or AI-drawn stand-in.
+
+Premiere colours come from the theme (`ULTRA_THEME`, default `neutral`); a user's own references or `accent "#hex"` override it.
 
 ## Sound and music
 

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ExtensionManifest Version="9.0" ExtensionBundleId="com.ultrapremiere.bridge" ExtensionBundleVersion="1.1.0"
+  ExtensionBundleName="Ultra Premiere" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ExtensionList>
+    <!-- hidden: starts with Premiere and runs the local bridge server -->
+    <Extension Id="com.ultrapremiere.bridge.server" Version="1.0.0" />
+    <!-- visible: Window > Extensions > Ultra Premiere (status + log) -->
+    <Extension Id="com.ultrapremiere.bridge.panel" Version="1.0.0" />
+  </ExtensionList>
+  <ExecutionEnvironment>
+    <HostList>
+      <Host Name="PPRO" Version="[22.0,99.9]" />
+      <Host Name="AEFT" Version="[23.0,99.9]" />
+    </HostList>
+    <LocaleList>
+      <Locale Code="All" />
+    </LocaleList>
+    <RequiredRuntimeList>
+      <RequiredRuntime Name="CSXS" Version="9.0" />
+    </RequiredRuntimeList>
+  </ExecutionEnvironment>
+  <DispatchInfoList>
+    <Extension Id="com.ultrapremiere.bridge.server">
+      <DispatchInfo>
+        <Resources>
+          <MainPath>./server.html</MainPath>
+          
+          <CEFCommandLine>
+            <Parameter>--enable-nodejs</Parameter>
+            <Parameter>--mixed-context</Parameter>
+          </CEFCommandLine>
+        </Resources>
+        <Lifecycle>
+          <AutoVisible>false</AutoVisible>
+          <StartOn>
+            <Event>com.adobe.csxs.events.ApplicationActivate</Event>
+            <Event>com.adobe.csxs.events.ApplicationInitialized</Event>
+            <Event>applicationActivate</Event>
+          </StartOn>
+        </Lifecycle>
+        <UI>
+          <Type>Custom</Type>
+          <Geometry><Size><Width>100</Width><Height>100</Height></Size></Geometry>
+        </UI>
+      </DispatchInfo>
+    </Extension>
+    <Extension Id="com.ultrapremiere.bridge.panel">
+      <DispatchInfo>
+        <Resources>
+          <MainPath>./panel.html</MainPath>
+          
+          <CEFCommandLine>
+            <Parameter>--enable-nodejs</Parameter>
+            <Parameter>--mixed-context</Parameter>
+          </CEFCommandLine>
+        </Resources>
+        <Lifecycle>
+          <AutoVisible>true</AutoVisible>
+        </Lifecycle>
+        <UI>
+          <Type>Panel</Type>
+          <Menu>Ultra Premiere</Menu>
+          <Geometry>
+            <Size><Width>320</Width><Height>360</Height></Size>
+            <MinSize><Width>220</Width><Height>160</Height></MinSize>
+          </Geometry>
+        </UI>
+      </DispatchInfo>
+    </Extension>
+  </DispatchInfoList>
+</ExtensionManifest>

@@ -1,0 +1,11 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Claude Bridge Server</title></head>
+<body>
+<script src="./bridge.js"></script>
+<script>
+  window.ClaudeBridge.start(function (state, detail) {
+    if (state === 'elsewhere') window.ClaudeBridge.log('port already in use: another bridge is running');
+    if (state === 'error') window.ClaudeBridge.log('bridge failed: ' + detail);
+  });
+</script>
+</body></html>

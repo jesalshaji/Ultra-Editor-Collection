@@ -14,9 +14,17 @@ Works with **Premiere Pro**, **DaVinci Resolve** (free or Studio) and **After Ef
 skills/
   ultra-edit/        Main orchestrator skill - asks which software to connect,
                      verifies each connection, runs the multi-agent edit flow
+    effects/         On-request effects toolkit: EFFECTS.md recipes (follow-zooms,
+                     editable spotlights, real logos, concept/article cards,
+                     word-by-word captions, bloom/light-burst transitions, sound hits)
+                     + templates/, captions/, transitions/ scripts
   video-factory/     Premiere + After Effects skill - full edits, reels,
                      learns your style from reference videos
 connectors/
+  ultra-premiere-mcp/ Premiere Pro MCP server + CEP panel (also links After
+                     Effects): timeline, silence removal, captions, screen
+                     follow-zooms, spotlights, b-roll, sound, export. Themes in
+                     styles/ (neutral default, dark-lavender optional)
   ultra-resolve-mcp/ DaVinci Resolve MCP server (Resolve Studio - direct
                      external scripting API)
 setup/
@@ -28,11 +36,24 @@ setup/
 
 | Software | Role | Connection |
 |---|---|---|
-| Premiere Pro | Main edit | Any Premiere MCP server (CEP panel bridge) |
+| Premiere Pro | Main edit | `connectors/ultra-premiere-mcp` (CEP panel bridge), or any Premiere MCP server |
 | DaVinci Resolve free | Main edit | [`davinci-resolve-mcp`](https://github.com/samuelgursky/davinci-resolve-mcp) + in-app bridge (`Workspace ▸ Scripts ▸ resolve_bridge`) |
 | DaVinci Resolve Studio | Main edit | Same, or `connectors/ultra-resolve-mcp` (direct API, no bridge) |
 | After Effects | Motion graphics, hero titles | [`after-effects-mcp`](https://github.com/TheLlamainator/after-effects-mcp) |
 | Remotion | Kinetic text, cards, background animation | Rendered MP4/alpha imports into any editor |
+
+## Effects on request
+
+The edit stays neutral unless you ask. Say *"zoom in on my screen when I click"*, *"highlight the API key"*,
+*"show the real Premiere logo"*, *"word-by-word captions"* or *"light-burst transition into each chapter"* and
+the skill uses the matching recipe from `skills/ultra-edit/effects/EFFECTS.md`.
+
+One rule whenever effects are used: **real thing first** - if what you're talking about is already on your
+screen recording, the edit zooms or spotlights it there instead of covering it with words or a made-up graphic;
+otherwise it uses the real logo or real footage.
+
+Logos are downloaded on your machine (`effects/templates/fetch_logos.py`), not shipped. No sound files are
+shipped either - add your own licensed sounds to `connectors/ultra-premiere-mcp/assets/sfx/<kit>/`.
 
 ## How an edit runs
 

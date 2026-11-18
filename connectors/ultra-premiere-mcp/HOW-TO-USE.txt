@@ -1,0 +1,108 @@
+ULTRA PREMIERE MCP: Claude edits your videos in Adobe Premiere Pro
+====================================================================
+
+ONE-TIME SETUP
+  - Install packages:             npm install
+  - Panel linked into Premiere:   node scripts/install-panel.js
+  - MCP registered with Claude:   claude mcp add --scope user ultra-premiere -- node "<this folder>\server\index.js"
+  - Local Whisper (free):         python -m venv %USERPROFILE%\.ultra-premiere-mcp\venv
+                                  then: <venv>\Scripts\pip install faster-whisper numpy pillow opencv-python
+  - The skill that drives it:     skills/ultra-edit in this repo (setup/SETUP-PROMPT.txt installs it)
+
+THEME (no personal style is hard-coded)
+  Default theme is "neutral" (dark grey, white text, one accent). Change it with the ULTRA_THEME env var:
+    ULTRA_THEME=dark-lavender        an optional preset in styles/dark-lavender
+    ULTRA_THEME=C:\path\tokens.json  your own theme (copy styles/neutral/tokens.json and edit the colours)
+  Any single graphic can still take accent "#hex".
+
+SOUND EFFECTS (bring your own)
+  The repo ships no sound files. Put licensed .wav/.mp3 files in assets\sfx\<kit name>\ (or set ULTRA_SFX_DIR).
+  Names with "click" are used by add_sfx_on_cuts; "swish"/"whoosh", "riser", "impact", "subboom" are the
+  names the effects guide uses. An optional assets\sfx\peaks.json gives each file's transient time (ms)
+  so hits land exactly on the frame.
+
+EVERY TIME
+  1. Open Premiere Pro and a project.
+  2. Window > Extensions > Ultra Premiere: the dot is green and it says "Connected".
+     (The bridge also starts by itself in the background.)
+  3. In Claude Code (new session), say for example:
+       "ultra premiere: edit C:\Videos\take1.mp4 into a 60 s YouTube short, clean style"
+       "remove the silence from C:\Videos\take1.mp4"
+       "transcribe my clip and build a sequence with only the best parts, hook first"
+       "add bold word captions to the active sequence"
+       "add a lower third 'Alex Rivera - Founder' at 2 s for 4 s"
+       "look at my open sequence and tell me what to fix"
+       "export the active sequence to C:\Videos\final.mp4"
+
+LAYERS (every edit)
+  V1 MAIN (only cut)  V2 BACKDROP  V3 ZOOM  V4 B-ROLL  V5 SPOTLIGHT  V6 GRAPHICS  V7 CAPTIONS  V8 LABELS
+  A1 VOICE  A2 MUSIC  A3 SFX      every clip is named, so you can switch a layer off or fix one clip
+
+VOICE (every edit)
+  add_voice puts your clean voice on A1, synced from the sound to the frame (a VOICE SYNC marker at 0 s says
+  how). Captions are made from that same voice, so they match what you hear.
+
+FIXING A HIGHLIGHT (each one has a blue marker on the timeline telling you this)
+  Spot in the wrong place  V5 SPOTLIGHT clip > Effect Controls > Crop: change Left/Top/Right/Bottom,
+                           or click "Crop" and drag its handles in the Program Monitor
+  Shadow                   same clip > Drop Shadow
+  Outline / label          V6 OUTLINE / V8 LABEL clips: drag them in the Program Monitor (or Motion > Position, Scale)
+  Dim too strong/weak      ZOOM clip > Opacity keyframes (45% = dim), delete them for no dim
+  Remove it                delete the SPOTLIGHT, OUTLINE and LABEL clips + the ZOOM opacity keyframes
+
+WHAT IT CAN DO (62 tools)
+  Read     project, sequences, every clip, markers, effects; render a frame or a contact sheet so
+           Claude can SEE the edit
+  Cut      remove silence, best-part selects, razor, trim, move, ripple delete, speed, punch-ins
+  Text     native Premiere captions (editable), styled burn-in word captions, clean title PNGs
+           (title, keyword, shock, serif, label, tag, caption, mono), Premiere .mogrt templates
+  Look     colour looks for b-roll: teal, mono, warm, invert, deep, clean, natural
+  Sound    your own sound kit (clicks, whooshes, risers, impacts, sub booms) placed on exact frames,
+           a click on every cut, music ducking under the voice, Qwen3 voice lines (qwen3-tts MCP)
+  Effects  any Premiere effect or transition by name, effect parameters + keyframes
+  Out      export MP4 (YouTube 1080/4K, match source) or queue in Media Encoder
+  Screens  screen_follow: rounded crop + smooth whole-screen zoom that glides to the action
+           (auto-detected or given points), motion blur, highlights that move with it
+  Presets  YOUR Premiere presets: list_presets, apply_preset (Slow Zoom, Instant Scale, round crop,
+           text crop...), screen_zoom (your 2-layer blur+exposure / crop+transform+shadow zoom)
+  B-roll   make_broll: neon_cards, framed_clip, chapter_nav opener per chapter,
+           stat, prompt_bar, feature_list, logo_row, kinetic_text, quote_stamp
+  Stock    find_broll + use_broll: real relatable footage (Mixkit, Wikimedia, Pexels with a free key)
+           for everyday actions, timed to your words, in the glowing frame or full screen
+  Captions add_styled_captions: builds word by word, italic accent words
+  Layouts  make_layout (split screen + cam card + slow zoom), theme_graphic (chapter, list, highlight,
+           name tag, keyword, caption) - all in the active THEME
+  Escape   run_extendscript for anything else
+
+AGENTS
+  The ultra-edit skill (skills/ultra-edit) runs the agents: cheap models for search and sound,
+  Sonnet for planning, editing and review, Opus for motion design.
+
+EFFECTS ON REQUEST
+  Zooms, spotlights, real-screen references, logo cards, captions, transitions: see
+  skills/ultra-edit/effects/EFFECTS.md. They are only used when the user asks for them.
+
+FILES
+  Generated graphics, captions, frames, transcripts: %USERPROFILE%\.ultra-premiere-mcp\generated
+  Bridge log: %USERPROFILE%\.ultra-premiere-mcp\bridge.log (also shown in the panel)
+
+TROUBLESHOOTING
+  "NOT CONNECTED"     Premiere closed, or the panel never loaded: restart Premiere, open the panel,
+                      click "Start / restart bridge".
+  Panel missing       run: node scripts/install-panel.js  (it checks developer panels are allowed)
+  Changed premiere.jsx  click "Reload scripts" in the panel.
+  Test from a terminal: node scripts/test-bridge.js
+
+AFTER EFFECTS LINK (motion graphics built in After Effects, live on the Premiere timeline)
+  Setup   Same panel, nothing to install: restart After Effects, then Window > Extensions > Ultra Premiere
+          (the panel title says "Ultra AE Link" and shows Connected, port 47232). Keep Premiere open too.
+          After Effects: Edit > Preferences > Scripting & Expressions > "Allow Scripts to Write Files and Access Network" ON.
+  Make    "ae_motion_graphic": title_card, lower_third, callout, list_build, counter, kinetic_text or custom.
+          The comp has the SAME size + frame rate as your sequence and lands on V7 GRAPHICS with a marker.
+          deliver: link (default, Dynamic Link = live), mogrt (Essential Graphics fields), render (transparent .mov, light on RAM)
+  Edit    Every keyframe is on a FRAME number. Ask: "move the title's landing to frame 14", "make the accent #8EE3C8",
+          "hold the card 10 frames longer" (ae_get_graphic / ae_edit_graphic), or by hand: right-click the clip >
+          Edit Original, change it in After Effects, save, and Premiere updates by itself.
+          Colours live on the CONTROLS layer (Accent, Text, Card...): change one, every linked layer follows.
+          Each Claude change is one undo step in After Effects (Ctrl+Z).
+  Files   <your .prproj folder>\Ultra AE\<project> motion.aep  (+ renders\ and mogrt\ next to it)

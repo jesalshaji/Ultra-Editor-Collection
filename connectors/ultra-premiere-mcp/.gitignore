@@ -1,0 +1,9 @@
+node_modules/
+.work/
+__pycache__/
+*.pyc
+*.log
+assets/fonts/*.ttf
+assets/fonts/*.TTF
+assets/sfx/*/
+assets/sfx/peaks.json
