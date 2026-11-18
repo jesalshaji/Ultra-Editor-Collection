@@ -298,6 +298,12 @@ tool('list_presets', "List the user's own Premiere effect presets (Effects panel
     return (await M.loadPresets()).filter((p) => !p.name.endsWith('_1') && (!f || (p.folder + ' ' + p.name).toLowerCase().includes(f)))
       .map((p) => `${p.folder ? p.folder + ' / ' : ''}${p.name}: ${p.effects.map((e) => e.displayName + (e.params.some((x) => x.keys) ? ' (animated)' : '')).join(' + ')}`);
   });
+/** Rounded-corner frame from a Premiere preset (default "round crop universal video"). If the user has no such
+    preset, fall back to no rounding instead of failing - the zoom still works, just with square corners. */
+async function roundedFx(name, dur) {
+  try { return (await M.findPreset(name)).effects.map((e) => M.fitEffect(e, dur)); }
+  catch { return []; }
+}
 async function clipAt(sequence, kind, trackNo, sel) {
   const s = await activeSeqInfo(sequence);
   const tr = (kind === 'audio' ? s.audio : s.video)[(trackNo || 1) - 1];
@@ -417,7 +423,7 @@ function mainSrcAt(map, t) {
 }
 async function camBubble(seqName, from, to, o = {}) {
   const s = await activeSeqInfo(seqName);
-  const { index } = await clipAt(seqName, 'video', LAYER.MAIN, { at: from + 0.01 });
+  const { index } = await clipAt(seqName, 'video', LAYER.MAIN, { at: Math.round(from * (s.fps || 30)) / (s.fps || 30) + 0.01 });
   const nn = String((s.video[LAYER.CAM - 1]?.clips.length || 0) + 1).padStart(2, '0');
   const cp = await call('copy_range', { sequence: seqName, track: LAYER.MAIN, clipIndex: index, from, to, toTrack: LAYER.CAM, name: `CAM ${nn}` });
   const side = o.corner || 'bottom-right', size = o.size || 0.26;          // size = card height, 0-1 of frame
@@ -470,7 +476,7 @@ tool('screen_section', 'SCREEN PART of a face-camera video: lays the screen reco
     const dur = a.to - a.from, cam = cameraKeys(pts, dur, 0.8);
     const transform = { matchName: 'AE.ADBE Geometry', displayName: 'Transform', params: [{ name: 'Uniform Scale', value: true }, { name: 'Scale Height', keys: cam.scale }, { name: 'Position', keys: cam.pos },
       { name: 'Use Composition’s Shutter Angle', value: false }, { name: "Use Composition's Shutter Angle", value: false }, { name: 'Shutter Angle', value: 180 }] };
-    const roundFx = (await M.findPreset('round crop universal video')).effects.map((e) => M.fitEffect(e, dur));
+    const roundFx = await roundedFx('round crop universal video', dur);
     const fx = await call('apply_effects', { sequence: s.name, track: LAYER.ZOOM, clipIndex: pl.clipIndex, effects: [transform, ...roundFx] }, 600000);
     saveCam(s.name, `ZOOM ${nn}`, { clipStart: a.from, clipEnd: a.to, inPoint: srcIn, mediaPath: a.screen, track: LAYER.ZOOM, cam, roundFx, fit: pl.fit });
     const hl = [];
@@ -613,7 +619,7 @@ async function addHighlight(seqName, zoomName, h, tag) {
   if (h.outline !== false) {
     const [png] = await M.themeGraphics({ kind: 'outline_box', w: fx1 - fx0, h: fy1 - fy0, H: sh, accent: h.accent });
     await call('place_many', { sequence: seqName, bin: 'Graphics', items: [{ path: png, at: from, duration: h.duration, track: LAYER.GRAPHICS, name: `OUTLINE ${tag}` }] });
-    const { index } = await clipAt(seqName, 'video', LAYER.GRAPHICS, { at: from + 0.01 });
+    const { index } = await clipAt(seqName, 'video', LAYER.GRAPHICS, { at: Math.round(from * (s.fps || 30)) / (s.fps || 30) + 0.01 });
     await call('set_transform', { sequence: seqName, track: LAYER.GRAPHICS, clipIndex: index, position: [(fx0 + fx1) / 2, (fy0 + fy1) / 2] });
     out.parts.push({ outline: `V${LAYER.GRAPHICS} OUTLINE ${tag}` });
   }
@@ -622,7 +628,7 @@ async function addHighlight(seqName, zoomName, h, tag) {
     const sz = (await M.probe(png)).video;
     const track = LAYER.LABELS;   // own layer above the captions, so it never collides with the outline
     await call('place_many', { sequence: seqName, bin: 'Graphics', items: [{ path: png, at: from, duration: h.duration, track, name: `LABEL ${tag} ${h.label}` }] });
-    const { index } = await clipAt(seqName, 'video', track, { at: from + 0.01 });
+    const { index } = await clipAt(seqName, 'video', track, { at: Math.round(from * (s.fps || 30)) / (s.fps || 30) + 0.01 });
     await call('set_transform', { sequence: seqName, track, clipIndex: index, position: [fx0 + sz.width / 2, fy0 - sz.height / 2 - sh * 0.008] });
     out.parts.push({ label: `V${track} LABEL ${tag}` });
   }
@@ -714,7 +720,7 @@ tool('screen_follow', "SCREEN RECORDING ZOOM (the user's way): rounded-crop fram
     const effects = [transform];
     let roundFx = null;
     if (a.rounded !== false) {
-      roundFx = (await M.findPreset(a.roundedPreset || 'round crop universal video')).effects.map((e) => M.fitEffect(e, clip.duration));
+      roundFx = await roundedFx(a.roundedPreset || 'round crop universal video', clip.duration);
       effects.push(...roundFx);
     }
     // layered: MAIN stays untouched on V1; a dark BACKDROP goes on V2 and the zoomed copy on V3 (switch V2+V3 off to see the raw cut)

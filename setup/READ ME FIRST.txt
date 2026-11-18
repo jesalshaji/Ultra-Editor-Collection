@@ -1,31 +1,29 @@
-ULTRA-EDIT - edit videos with AI in YOUR editor (Premiere Pro or DaVinci Resolve)
+ULTRA EDIT - edit videos with AI in YOUR editor (Premiere Pro, DaVinci Resolve, After Effects)
 
-What it does: hand your assistant a plain talking-head recording (and optionally a separate
-voice/mic file). It transcribes it, finds the hooks and best parts, proposes a beat
-plan, waits for your OK, then builds a layered edit in YOUR editor: cut, b-roll,
-captions that follow the voice, sound effects, ducked music, and an export.
-It never uploads or posts anything.
+What it does: give your AI assistant a talking-head or screen recording (and optionally a separate voice
+file). It transcribes it, finds the hooks and best parts, proposes a plan, waits for your OK, then builds a
+layered edit in YOUR editor: cuts, captions that follow the voice, b-roll, zooms and highlights when you ask,
+sound effects, music ducking, and an export. It never uploads or posts anything.
 
 Works with:
-- DaVinci Resolve (free or Studio) - fully self-contained, open source MCP
-- Premiere Pro - needs a Premiere MCP server/panel (ask the skill author for it)
+- Premiere Pro (Windows)        - connector included: connectors/ultra-premiere-mcp
+- After Effects                 - through the same Premiere panel, or the open-source After Effects MCP
+- DaVinci Resolve free / Studio - open-source davinci-resolve-mcp (Studio: also connectors/ultra-resolve-mcp)
+- Remotion                      - optional, for motion graphics
 
-This package contains NO personal editing styles - neutral defaults only.
-Give it your own reference videos and it will follow those instead.
+No personal editing style is built in - neutral defaults only. Effects are used when you ask for them.
 
-HOW TO INSTALL (5-10 minutes)
-1. Unzip this folder anywhere.
-2. Open Claude Code in any folder.
-3. Open "SETUP-PROMPT.txt", copy all of it, paste it into Claude Code, press Enter.
-4. Answer "DaVinci Resolve" or "Premiere Pro" when asked.
-5. Restart Claude, then test: "ultra edit this video" with any short recording.
+HOW TO INSTALL (10-15 minutes)
+1. Unzip this folder somewhere you will keep it (e.g. Documents).
+2. Open Claude Code (or any AI app with MCP support) in that folder.
+3. Open setup/SETUP-PROMPT.txt, copy all of it, paste it in, press Enter.
+4. Say which software you use. The assistant guides you step by step and checks each step.
+5. Start a new session and test: "ultra edit this video" with a short recording.
 
 WHAT YOU NEED
-- Claude (Code or Desktop) with MCP support
-- DaVinci Resolve (free is fine) or Premiere Pro
-- Node.js + Python 3.10-3.12 + ffmpeg (the setup prompt installs what's missing)
-- Your own music track and footage
+- An AI assistant with MCP support (Claude Code / Claude Desktop recommended)
+- Your editor: Premiere Pro, DaVinci Resolve (free is fine) and/or After Effects
+- Node.js 18+, Python 3.10-3.12, ffmpeg (the setup installs what is missing)
+- Your own music and footage
 
-HOW TO SHARE IT
-Send this whole folder (or the zip) to anyone. They paste SETUP-PROMPT.txt into
-their Claude Code and answer one question about their editor.
+Full step list: skills/ultra-edit/INSTALL.md

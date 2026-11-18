@@ -20,12 +20,16 @@ try {
 fs.symlinkSync(SRC, DEST, 'junction');
 console.log('panel linked:', DEST, '->', SRC);
 
-let ok = false;
-try {
-  const out = execFileSync('reg', ['query', String.raw`HKCU\Software\Adobe\CSXS.12`, '/v', 'PlayerDebugMode'], { encoding: 'utf8' });
-  ok = /PlayerDebugMode\s+REG_SZ\s+1/.test(out);
-} catch {}
-if (ok) console.log('developer panels are allowed (CSXS.12 PlayerDebugMode = 1)');
-else console.log('\nPremiere will hide the panel until developer panels are allowed. In a terminal run:\n' +
+// Allow developer (unsigned) panels for every recent CEP version (Premiere / After Effects 2020-2026).
+// Current user only (HKCU), no admin needed.
+const done = [];
+for (const v of [9, 10, 11, 12]) {
+  try {
+    execFileSync('reg', ['add', String.raw`HKCU\Software\Adobe\CSXS.` + v, '/v', 'PlayerDebugMode', '/t', 'REG_SZ', '/d', '1', '/f'], { stdio: 'ignore' });
+    done.push('CSXS.' + v);
+  } catch {}
+}
+if (done.length) console.log('developer panels allowed for', done.join(', '));
+else console.log('\nCould not set PlayerDebugMode. In a terminal run:\n' +
   String.raw`  reg add HKCU\Software\Adobe\CSXS.12 /v PlayerDebugMode /t REG_SZ /d 1 /f`);
-console.log('\nNow restart Premiere Pro, open a project, then Window > Extensions > Ultra Premiere.');
+console.log('\nNow restart Premiere Pro (and After Effects if you use it), open a project, then Window > Extensions > Ultra Premiere.');

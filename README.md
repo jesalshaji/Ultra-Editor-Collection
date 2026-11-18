@@ -65,19 +65,43 @@ shipped either - add your own licensed sounds to `connectors/ultra-premiere-mcp/
 6. **Sound** — SFX on changes, music ducked under voice
 7. **Review + fix** — up to two fix rounds, then export
 
-## Install (5–10 minutes)
+## Install (10–15 minutes, guided step by step)
 
-1. Clone or download this repo
-2. Open your AI coding assistant in any folder
-3. Paste the contents of `setup/SETUP-PROMPT.txt` and press Enter
-4. Answer which software you use (and whether you want the After Effects / Remotion add-ons)
-5. Restart the assistant, then test: *"ultra edit this video"* with any short recording
+1. **Get the files:** download **[Ultra-Editor-Collection.zip](Ultra-Editor-Collection.zip)** (everything in this repo)
+   and unzip it somewhere you'll keep it - or `git clone` this repo.
+2. Open Claude Code (or any AI app with MCP support) in that folder.
+3. Paste the contents of `setup/SETUP-PROMPT.txt` and press Enter.
+4. It asks **which software you use** - Premiere Pro, DaVinci Resolve (free/Studio), After Effects, or a mix
+   (+ Remotion) - then walks you through installing **only that software's connector and the skill, one step at a
+   time**, checking each step before the next.
+5. Start a new session and test: *"ultra edit this video"* with any short recording.
+
+Already installed the skill? Just say *"ultra edit"* - if your editor isn't connected yet, the skill switches to the
+same guided install (`skills/ultra-edit/INSTALL.md`).
+
+| Software | What gets installed |
+|---|---|
+| Premiere Pro (Windows) | `connectors/ultra-premiere-mcp`: npm install, the Ultra Premiere panel, a local Whisper venv, `claude mcp add` |
+| After Effects | the same panel (Window > Extensions > Ultra Premiere) - or the open-source After Effects MCP on its own |
+| DaVinci Resolve | `npx davinci-resolve-mcp setup` (+ the resolve_bridge script on the free edition); Studio can use `connectors/ultra-resolve-mcp` |
+| Remotion | nothing extra - Node 18+ |
 
 ### Requirements
 - An AI assistant with MCP support (Claude Code / Claude Desktop are the reference implementations)
-- One of: DaVinci Resolve (free is fine) or Premiere Pro
-- Node.js 18+, Python 3.10–3.12, ffmpeg
+- One of: Premiere Pro (Windows), DaVinci Resolve (free is fine), After Effects
+- Node.js 18+, Python 3.10–3.12, ffmpeg (the guided setup installs what's missing)
 - Your own music track and footage (nothing bundled)
+
+## Using other models
+
+The connectors are standard MCP servers, so any MCP-capable app (Claude Code, OpenCode, Cursor, ...) and any model
+with tool calling can drive them. Other apps don't load `SKILL.md` automatically - paste it in as instructions.
+
+- **Basic edits work on most capable models** - silence cuts, layered timeline, captions, a click on every cut, export.
+- **Weaker / free models struggle with** long multi-step plans, exact highlight placement (needs a model that can see
+  rendered frames), and very long sessions with many tool calls.
+- The cheap-model / strong-model agent split (search and sound on a small model, motion design on a large one) is a
+  Claude Code feature; elsewhere one model does every step.
 
 ## Licence
 

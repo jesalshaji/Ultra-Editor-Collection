@@ -7,17 +7,24 @@ description: Edit a talking-head video (plus screen recordings) end to end in Pr
 
 You are the orchestrator. Do not do the agents' work yourself; keep your own context small.
 
-## Step 0 - which software (always first)
+## Step 0 - which software, and is it installed? (always first)
 
-Ask: "Which software should I connect? Premiere, DaVinci Resolve, After Effects - any combination." (Accept whatever the user names, in any role; auto-detect if they are unsure: check for running Resolve, then Premiere, then AE processes. Remotion is always available as the motion helper and needs no connection.)
-
-Connect and verify EVERY software the user names, one by one, using the table below. Failures block only that software - report it and continue with the ones that connected.
+1. **Ask** (one question, offer the choices): *"Which software do you edit in? Premiere Pro, DaVinci Resolve (free or
+   Studio), After Effects - or a combination? Remotion is optional for motion graphics."* If the user is unsure,
+   check which of Resolve / Premiere / After Effects is running.
+2. **Check each one they named**, using the table below.
+3. **Not connected (tool missing or the check fails)? Switch to install mode:** open `INSTALL.md` (next to this
+   file) and guide the user through ONLY the sections for their software - **one step at a time**: say what the
+   step does, run commands yourself when allowed, tell them exactly what to click inside the app, verify the step
+   worked, then move on. Never dump all steps at once. Registering an MCP server needs a **new Claude session**,
+   so finish the install steps, ask them to restart Claude, and continue the edit there.
+4. Failures block only that software - report it and continue with the ones that connected.
 
 | Software | Role it can take | Tools | Connection check |
 |---|---|---|---|
-| Premiere Pro | Main edit | ultra-premiere-mcp (`connectors/ultra-premiere-mcp` in this repo, or any Premiere MCP): `premiere_status`, `transcribe_media`, `setup_layers`, `add_voice`, `add_styled_captions`, `find_broll`/`use_broll`, `make_broll`, `apply_preset`, `export_video` | `premiere_status` |
-| DaVinci Resolve | Main edit | davinci-resolve-mcp (resolve_status, import_media, add_clips, add_text, add_marker, render_export, subtitle/audio tools) | `resolve_status` - free edition needs the in-app bridge running: Workspace > Scripts > resolve_bridge, Resolve open with the project open |
-| After Effects | Motion graphics (or main target for pure-motion jobs) | AfterEffectsMCP: `create-composition`, `run-script`, `setLayerKeyframe`, `setLayerExpression`, `apply-effect`, `get-results` | "Get my After Effects project info" - needs AE open, scripting enabled (Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network) and the connector's bridge panel open with auto-run on |
+| Premiere Pro (Windows) | Main edit | ultra-premiere-mcp (`connectors/ultra-premiere-mcp` in this repo): `premiere_status`, `transcribe_media`, `setup_layers`, `screen_follow`, `add_highlight`, `add_voice`, `add_styled_captions`, `find_broll`/`use_broll`, `make_broll`, `apply_preset`, `export_video` | `premiere_status` |
+| DaVinci Resolve | Main edit | davinci-resolve-mcp (resolve_status, import_media, add_clips, add_text, add_marker, render_export, subtitle/audio tools); Studio can also use `connectors/ultra-resolve-mcp` | `resolve_status` - free edition needs the in-app bridge running: Workspace > Scripts > resolve_bridge, Resolve open with the project open |
+| After Effects | Motion graphics (or main target for pure-motion jobs) | With Premiere: the same Ultra Premiere panel (`ae_status`, `ae_motion_graphic`, `ae_edit_graphic`). Alone: AfterEffectsMCP (`create-composition`, `run-script`, `setLayerKeyframe`, ...) | `ae_status`, or "Get my After Effects project info" - needs AE open and Preferences > Scripting & Expressions > Allow Scripts to Write Files and Access Network |
 | Remotion | Templated motion (always available) | renders MP4/WebM with alpha via a small React project; import the render into whichever editor is in use | `npx remotion versions` in the job folder |
 
 Combos work naturally - "cut it in Resolve, do the intro in After Effects" or "everything in Premiere" or "just make me an AE comp". One software acts as the main edit target; the others feed it renders (AE comps / Remotion MP4s imported into the main editor's timeline).

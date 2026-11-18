@@ -1,63 +1,49 @@
-You are installing "ultra-edit" - a Claude skill that edits a talking-head video end to end
-in the user's own video editor (Premiere Pro or DaVinci Resolve). Follow these steps.
+You are installing "Ultra Edit" - an AI video-editing skill that edits a talking-head / screen recording end to
+end inside the user's OWN video editor, through MCP connectors. Follow these rules and steps exactly.
 
-STEP 0 - ASK THE EDITOR (required, do this first)
-Ask: "Do you edit in Premiere Pro or DaVinci Resolve?" Then follow only that route.
+RULES
+- Go ONE STEP AT A TIME. For each step: say in one line what it does, run the command yourself when you are
+  allowed to (ask first), or tell the user exactly what to click inside the app. Then CHECK it worked before
+  moving on. Never paste every step at once.
+- Only do the parts for the software the user picks.
+- Windows commands are shown; on macOS use the brew / path equivalents (Premiere route is Windows only).
+- The full step list lives in skills/ultra-edit/INSTALL.md in this folder - read it and follow it.
 
-STEP 1 - PREREQUISITES (check, install what is missing)
-- Node.js 18+ (for tooling), Python 3.10-3.12 recommended, ffmpeg on PATH.
-- If ffmpeg is missing: winget install Gyan.FFmpeg  (or the platform equivalent).
+STEP 0 - ASK WHICH SOFTWARE (required, first)
+Ask: "Which software do you edit in? Premiere Pro, DaVinci Resolve (free or Studio), After Effects -
+or a combination? Remotion is an optional add-on for motion graphics."
+Then pick the INSTALL.md sections:
+   Premiere Pro ..................... 1, 2, 3
+   Premiere Pro + After Effects ..... 1, 2, 3, 4A
+   After Effects only ............... 1, 2, 4B
+   DaVinci Resolve (free) ........... 1, 2, 5
+   DaVinci Resolve Studio ........... 1, 2, 5 (or 6)
+   + Remotion ....................... add 7
+Also ask where this folder (Ultra-Editor-Collection) is on their PC - that path is <REPO> in INSTALL.md.
 
-STEP 2a - DaVinci Resolve ROUTE (fully self-contained)
-1. Run: npx -y davinci-resolve-mcp@latest setup --clients all
-   (installs the MCP server, its own Python venv, and registers it in your MCP clients)
-2. If Resolve is the FREE edition: also run the bridge installer from the managed folder:
-   <appdata>/davinci-resolve-mcp/scripts/install_resolve_bridge.py
-   using the venv python, then in Resolve: restart it, open a project, and run
-   Workspace > Scripts > resolve_bridge  (leave Resolve open while editing).
-3. Verify: in a NEW Claude session, say "check my DaVinci Resolve status".
+STEP 1 - BASICS (everyone): check node --version (18+), python --version (3.10-3.12), ffmpeg -version.
+Install only what is missing (winget install OpenJS.NodeJS.LTS / Python.Python.3.12 / Gyan.FFmpeg).
+Reopen the terminal after installing.
 
-STEP 2b - Premiere Pro ROUTE (connectors/ultra-premiere-mcp in this repo)
-1. In connectors/ultra-premiere-mcp: run  npm install  then  node scripts/install-panel.js
-   (links the "Ultra Premiere" CEP panel into Premiere and allows unsigned panels).
-2. Register the server:
-   claude mcp add --scope user ultra-premiere -- node "<absolute path>/connectors/ultra-premiere-mcp/server/index.js"
-3. Local transcription (free): create a venv at ~/.ultra-premiere-mcp/venv and install
-   faster-whisper numpy pillow opencv-python into it.
-4. Optional: set ULTRA_THEME (neutral by default; dark-lavender preset or a path to your own
-   tokens.json). Optional: put your own licensed sound effects in assets/sfx/<kit>/.
-5. Open Premiere with a project, Window > Extensions > Ultra Premiere (shows Connected).
-6. Verify: say "check my Premiere status" in a NEW Claude session.
+STEP 2 - THE SKILL: copy the whole folder <REPO>/skills/ultra-edit (SKILL.md + INSTALL.md + effects/) to
+~/.claude/skills/ultra-edit/ (Claude Code). Claude Desktop / claude.ai: zip that folder and upload it in
+Settings > Capabilities > Skills.
 
-STEP 2c - AFTER EFFECTS ADD-ON (optional, works with either editor)
-1. In After Effects: Edit > Preferences > Scripting & Expressions (Mac: After Effects >
-   Settings) - tick "Allow Scripts to Write Files and Access Network", restart AE.
-2. Install the After Effects MCP: follow https://github.com/TheLlamainator/after-effects-mcp
-   (clone, npm install, npm run build), then register it:
-   claude mcp add AfterEffectsMCP node "<absolute path>/after-effects-mcp/build/index.js"
-3. In AE open the connector's bridge panel from the Window menu and turn on auto-run;
-   keep AE open with a project when using it.
-4. Verify: say "Get my After Effects project info".
+STEP 3 - THE CONNECTOR FOR THEIR SOFTWARE: follow the INSTALL.md section(s) chosen in Step 0, step by step.
+   Premiere: npm install -> node scripts/install-panel.js -> Python venv with faster-whisper numpy pillow ->
+             claude mcp add ultra-premiere ... -> restart Premiere -> Window > Extensions > Ultra Premiere (green).
+   After Effects: scripting preference ON -> Window > Extensions > Ultra Premiere (or the AfterEffectsMCP).
+   DaVinci: npx -y davinci-resolve-mcp@latest setup --clients all -> free edition: the resolve_bridge script.
 
-STEP 2d - REMOTION ADD-ON (optional, for templated motion graphics)
-1. Node.js 18+ is required. No global install needed - the assistant scaffolds a small
-   Remotion project in the job folder when a shot needs it (npx create-video@latest
-   or a minimal package.json + @remotion/renderer).
-2. Verify: npx remotion versions
+STEP 4 - VERIFY: ask the user to start a NEW Claude session (MCP servers load at start), then check:
+   Premiere: "check my Premiere status"     After Effects: "check my After Effects link"
+   DaVinci:  "check my DaVinci Resolve status"
+Fix anything that fails with the troubleshooting notes in INSTALL.md before finishing.
 
-STEP 3 - SKILL INSTALL
-Copy the whole skills/ultra-edit folder (SKILL.md + effects/) into your Claude skills folder:
-- Claude Code:  ~/.claude/skills/ultra-edit/  (SKILL.md and the effects/ folder)
-- Effects scripts need Python with numpy + pillow, ffmpeg, and npx (HyperFrames renders on first use).
-  Real app logos: run  python ~/.claude/skills/ultra-edit/effects/templates/fetch_logos.py  once.
-- Claude Desktop: use the skills importer, or paste SKILL.md content into a project instruction.
+STEP 5 - TEST EDIT: the user gives any short recording (10-60 s) and says "ultra edit this video".
+The assistant transcribes it, proposes hooks + a beat plan, waits for OK, builds a layered timeline in their
+editor with captions that follow the voice, and exports. It never uploads or posts anything.
 
-STEP 4 - TEST EDIT (prove it works)
-Hand your assistant any short talking-head recording (10-60 s) and say: "ultra edit this video".
-The assistant should: transcribe it, propose hooks + beat plan, wait for your OK, build a
-layered timeline in YOUR editor with captions following the voice, then report where
-the export went. It never uploads or posts anything.
-
-NOT INCLUDED: music (bring a track you have rights to), sound effect files, app logo
-files (fetched on demand), other people's footage, and any personal editing styles -
-the skill uses neutral defaults, and the effects toolkit only when you ask for an effect.
+NOT INCLUDED: music (bring a track you have rights to), sound-effect files, app logo files (fetched on demand),
+other people's footage, and any personal editing style - the skill uses neutral defaults, and its effects toolkit
+(zooms, spotlights, real logos, captions, transitions) only when you ask for an effect.
